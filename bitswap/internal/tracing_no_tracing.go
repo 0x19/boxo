@@ -1,27 +1,14 @@
-//go:build !tracing
+//go:build notracing
 
 package internal
 
 import (
 	"context"
+	"fmt"
+	"go.opentelemetry.io/otel/trace"
+	"go.opentelemetry.io/otel/trace/noop"
 )
 
-func StartSpan(ctx context.Context, name string, opts ...struct{}) (context.Context, FakeSpan) {
-	return ctx, spanNoop{}
-}
-
-type spanNoop struct{}
-
-func (s spanNoop) End() {}
-
-type FakeSpan interface {
-	End()
-}
-
-func StringAttr(k string, v string) struct{} {
-	return struct{}{}
-}
-
-func IntAttr(k string, v int) struct{} {
-	return struct{}{}
+func StartSpan(ctx context.Context, name string, opts ...trace.SpanStartOption) (context.Context, trace.Span) {
+	return noop.NewTracerProvider().Tracer("go-bitswap").Start(ctx, fmt.Sprintf("Bitswap.%s", name), opts...)
 }

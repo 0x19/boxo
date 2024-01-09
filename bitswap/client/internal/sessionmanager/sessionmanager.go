@@ -8,6 +8,8 @@ import (
 
 	cid "github.com/ipfs/go-cid"
 	delay "github.com/ipfs/go-ipfs-delay"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 
 	"github.com/ipfs/boxo/bitswap/client/internal"
 	bsbpm "github.com/ipfs/boxo/bitswap/client/internal/blockpresencemanager"
@@ -90,7 +92,7 @@ func (sm *SessionManager) NewSession(ctx context.Context,
 ) exchange.Fetcher {
 	id := sm.GetNextSessionID()
 
-	ctx, span := internal.StartSpan(ctx, "SessionManager.NewSession", internal.StringAttr("ID", strconv.FormatUint(id, 10)))
+	ctx, span := internal.StartSpan(ctx, "SessionManager.NewSession", trace.WithAttributes(attribute.String("ID", strconv.FormatUint(id, 10))))
 	defer span.End()
 
 	pm := sm.peerManagerFactory(ctx, id)

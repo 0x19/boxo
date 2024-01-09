@@ -34,6 +34,8 @@ import (
 	process "github.com/jbenet/goprocess"
 	procctx "github.com/jbenet/goprocess/context"
 	"github.com/libp2p/go-libp2p/core/peer"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 )
 
 var log = logging.Logger("bitswap-client")
@@ -254,7 +256,7 @@ type counters struct {
 // deadline enforced by the context.
 // It returns a [github.com/ipfs/boxo/bitswap/client/traceability.Block] assertable [blocks.Block].
 func (bs *Client) GetBlock(ctx context.Context, k cid.Cid) (blocks.Block, error) {
-	ctx, span := internal.StartSpan(ctx, "GetBlock", internal.StringAttr("Key", k.String()))
+	ctx, span := internal.StartSpan(ctx, "GetBlock", trace.WithAttributes(attribute.String("Key", k.String())))
 	defer span.End()
 	return bsgetter.SyncGetBlock(ctx, k, bs.GetBlocks)
 }
@@ -268,7 +270,7 @@ func (bs *Client) GetBlock(ctx context.Context, k cid.Cid) (blocks.Block, error)
 // resources, provide a context with a reasonably short deadline (ie. not one
 // that lasts throughout the lifetime of the server)
 func (bs *Client) GetBlocks(ctx context.Context, keys []cid.Cid) (<-chan blocks.Block, error) {
-	ctx, span := internal.StartSpan(ctx, "GetBlocks", internal.IntAttr("NumKeys", len(keys)))
+	ctx, span := internal.StartSpan(ctx, "GetBlocks", trace.WithAttributes(attribute.Int("NumKeys", len(keys))))
 	defer span.End()
 	session := bs.sm.NewSession(ctx, bs.provSearchDelay, bs.rebroadcastDelay)
 	return session.GetBlocks(ctx, keys)

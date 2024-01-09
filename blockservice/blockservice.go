@@ -10,13 +10,13 @@ import (
 
 	"github.com/ipfs/boxo/blockstore"
 	"github.com/ipfs/boxo/exchange"
-	"github.com/ipfs/boxo/otel/attribute"
-	"github.com/ipfs/boxo/otel/trace"
 	"github.com/ipfs/boxo/verifcid"
 	blocks "github.com/ipfs/go-block-format"
 	"github.com/ipfs/go-cid"
 	ipld "github.com/ipfs/go-ipld-format"
 	logging "github.com/ipfs/go-log/v2"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 
 	"github.com/ipfs/boxo/blockservice/internal"
 )
@@ -247,7 +247,7 @@ func (s *blockService) AddBlocks(ctx context.Context, bs []blocks.Block) error {
 // GetBlock retrieves a particular block from the service,
 // Getting it from the datastore using the key (hash).
 func (s *blockService) GetBlock(ctx context.Context, c cid.Cid) (blocks.Block, error) {
-	ctx, span := internal.StartSpan(ctx, "blockService.GetBlock", internal.StringerAttr("CID", c))
+	ctx, span := internal.StartSpan(ctx, "blockService.GetBlock", trace.WithAttributes(attribute.Stringer("CID", c)))
 	defer span.End()
 
 	var f func() notifiableFetcher
@@ -409,7 +409,7 @@ func getBlocks(ctx context.Context, ks []cid.Cid, bs blockstore.Blockstore, allo
 
 // DeleteBlock deletes a block in the blockservice from the datastore
 func (s *blockService) DeleteBlock(ctx context.Context, c cid.Cid) error {
-	ctx, span := internal.StartSpan(ctx, "blockService.DeleteBlock", internal.StringerAttr("CID", c))
+	ctx, span := internal.StartSpan(ctx, "blockService.DeleteBlock", trace.WithAttributes(attribute.Stringer("CID", c)))
 	defer span.End()
 
 	err := s.blockstore.DeleteBlock(ctx, c)
