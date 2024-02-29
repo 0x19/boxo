@@ -459,7 +459,7 @@ func (s *Session) wantBlocks(ctx context.Context, newks []cid.Cid) {
 	// No peers discovered yet, broadcast some want-haves
 	ks := s.sw.GetNextWants()
 	if len(ks) > 0 {
-		log.Infow("No peers - broadcasting", "session", s.id, "want-count", len(ks))
+		log.Debugw("No peers - broadcasting", "session", s.id, "want-count", len(ks))
 		s.broadcastWantHaves(ctx, ks)
 	}
 }
